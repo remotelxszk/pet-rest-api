@@ -1,15 +1,10 @@
 from django.db import models
 
-PET_TYPES = [Cat, Dog, Horse]
-
 class Pet(models.Model):
     added = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=100, blank=True, default="")
     weight = models.FloatField()
     is_female = models.BooleanField()
-    type = models.CharField(
-        choices=PET_TYPES, default="", max_length=100
-    )
 
     class Meta:
         ordering = ["added"]
@@ -27,3 +22,4 @@ class Dog(Pet):
 
 class Horse(Pet):
     speed = models.FloatField()
+    is_race_horse = models.BooleanField()
