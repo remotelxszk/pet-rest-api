@@ -2,7 +2,7 @@ from django.urls import include, path
 from rest_framework import routers
 from rest_framework.authtoken import views
 
-from .pets.views import UserViewSet, GroupViewSet, CatViewSet, DogViewSet, HorseViewSet, RabbitViewSet
+from .pets.views import UserViewSet, GroupViewSet, CatViewSet, DogViewSet, HorseViewSet, RabbitViewSet, PetsWithSameNameView
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
@@ -16,5 +16,6 @@ urlpatterns = [
     path("", include(router.urls)),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path('login/', views.obtain_auth_token),
+    path("pets/same-name/", PetsWithSameNameView.as_view()),
 ]
 

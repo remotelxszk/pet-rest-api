@@ -1,7 +1,11 @@
 from django.contrib.auth.models import Group, User
 from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.authtoken.models import Token
+from rest_framework.views import APIView
+from .models import Cat, Dog, Horse, Rabbit
+
 
 from .models import Cat, Dog, Horse, Rabbit
 from .serializers import (
@@ -79,6 +83,18 @@ class OwnedModelViewSet(viewsets.ModelViewSet):
 class CatViewSet(OwnedModelViewSet):
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
+    @action(
+        detail=False, 
+        methods=["get"],
+        permission_classes=[permissions.IsAdminUser]
+    )
+    def orange_thieves(self, request):
+        qs = self.get_queryset().filter(
+            is_orange_cat=True,
+            steals_food=True,
+        )
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
 
 
 class DogViewSet(OwnedModelViewSet):
@@ -94,3 +110,22 @@ class HorseViewSet(OwnedModelViewSet):
 class RabbitViewSet(OwnedModelViewSet):
     queryset = Rabbit.objects.all()
     serializer_class = RabbitSerializer
+
+class PetsWithSameNameView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        name = request.query_params.get("name")
+        if not name:
+            return Response({"error": "name query param required"}, status=400)
+
+        user = request.user
+
+        pets = {
+            "cats": Cat.objects.filter(name=name, owner=user).values(),
+            "dogs": Dog.objects.filter(name=name, owner=user).values(),
+            "horses": Horse.objects.filter(name=name, owner=user).values(),
+            "rabbits": Rabbit.objects.filter(name=name, owner=user).values(),
+        }
+
+        return Response(pets)

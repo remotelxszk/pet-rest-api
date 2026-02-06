@@ -31,3 +31,5 @@ class Horse(Pet):
 
 class Rabbit(Pet):
     eats_carrots = models.BooleanField()
+
+    
